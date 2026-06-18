@@ -35,20 +35,22 @@ const Terminal = (() => {
     if (t) t.textContent = `VIM`;
   }
 
-  // ── Vim Tab & Statusline Helpers ──────────────────────────────
   const FILE_NAMES = {
     about: 'about.txt',
     projects: 'projects.md',
     skills: 'skills.json',
     contact: 'contact.py',
     resume: 'resume.pdf',
-    spotify: 'spotify.vim'
+    spotify: 'spotify.vim',
+    term: 'term.sh'
   };
 
   function setActiveTab(tabName) {
+    const activeCmd = (tabName === 'spotify') ? 'spotify' : '';
+
     document.querySelectorAll('.vim-tab').forEach(tab => {
-      const cmd = tab.getAttribute('data-cmd');
-      if (cmd === tabName) {
+      const cmd = tab.getAttribute('data-cmd') || '';
+      if (cmd === activeCmd) {
         tab.classList.add('active');
       } else {
         tab.classList.remove('active');
@@ -250,7 +252,7 @@ const Terminal = (() => {
     const parts = trimmed.split(/\s+/);
     const cmdName = parts[0].toLowerCase();
     
-    let tabTarget = null;
+    let tabTarget = 'term';
     if (cmdName === 'about') tabTarget = 'about';
     else if (cmdName === 'projects') tabTarget = 'projects';
     else if (cmdName === 'skills' || cmdName === 'tech_stack') tabTarget = 'skills';
@@ -258,9 +260,7 @@ const Terminal = (() => {
     else if (cmdName === 'resume') tabTarget = 'resume';
     else if (cmdName === 'spotify') tabTarget = 'spotify';
 
-    if (tabTarget) {
-      setActiveTab(tabTarget);
-    }
+    setActiveTab(tabTarget);
 
     // Run command
     const result = await Commands.run(trimmed);
@@ -423,8 +423,10 @@ const Terminal = (() => {
         if (cmd && !busy) {
           input.value = cmd;
           processCommand();
-          input.focus();
+        } else if (!cmd) {
+          setActiveTab('term');
         }
+        input.focus();
       });
     });
 

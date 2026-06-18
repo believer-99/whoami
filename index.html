@@ -22,16 +22,20 @@
 <body>
 
   <!-- ╔══════════════════════════════════════╗ -->
-  <!-- ║         MARIO LOADING SCREEN         ║ -->
+  <!-- ║         PERCENTAGE LOADER SCREEN     ║ -->
   <!-- ╚══════════════════════════════════════╝ -->
   <div id="loading-screen">
-    <canvas id="mario-canvas" width="512" height="200"></canvas>
-    <div id="loading-info">
-      <div id="loading-label">BOOTING PORTFOLIO<span id="loading-dots"></span></div>
-      <div id="loading-bar-wrap">
-        <div id="loading-bar"></div>
+    <div id="loading-container">
+      <div class="vim-loader-logo">V I M</div>
+      <div id="loading-label">BOOTING VIM PORTFOLIO</div>
+      <div id="loading-progress-container">
+        <div id="loading-bar-wrap">
+          <div id="loading-bar"></div>
+        </div>
+        <div id="loading-percentage">0%</div>
       </div>
-      <div id="loading-sub">believer_99@portfolio ~ v1.0.0</div>
+      <div id="loading-status">Initializing environment...</div>
+      <div id="loading-console"></div>
     </div>
   </div>
 
@@ -46,15 +50,12 @@
   <div id="terminal-wrapper">
     <div id="terminal-window">
 
-      <!-- Title bar -->
+      <!-- Vim Tabline -->
       <div id="titlebar">
-        <div id="window-controls">
-          <span class="wc-btn wc-close"    id="btn-close"    title="Close"></span>
-          <span class="wc-btn wc-minimize" id="btn-minimize" title="Minimize"></span>
-          <span class="wc-btn wc-maximize" id="btn-maximize" title="Maximize"></span>
+        <div id="vim-tabs">
+          <div class="vim-tab" data-cmd="spotify">spotify.vim</div>
         </div>
-        <div id="titlebar-text">believer_99@portfolio: ~</div>
-        <div class="wc-right-pad"></div>
+        <div id="titlebar-text">VIM</div>
       </div>
 
       <!-- Terminal body -->
@@ -75,6 +76,21 @@
               aria-label="Command input"
             />
           </div>
+        </div>
+      </div>
+
+      <!-- Vim Statusline -->
+      <div id="vim-statusline">
+        <div class="sl-left">
+          <span class="sl-mode" id="status-mode">NORMAL</span>
+          <span class="sl-section sl-user" id="status-user">believer_99</span>
+          <span class="sl-section sl-file" id="status-file">~</span>
+        </div>
+        <div class="sl-right">
+          <span class="sl-section sl-encoding">utf-8</span>
+          <span class="sl-section sl-format">unix</span>
+          <span class="sl-section sl-percentage" id="status-pct">All</span>
+          <span class="sl-section sl-linecol" id="status-linecol"> 1:1</span>
         </div>
       </div>
 

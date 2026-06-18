@@ -32,7 +32,7 @@ const Commands = (() => {
     if (!iconKey || !DEVICON_MAP[iconKey]) {
       return `<span class="tech-bullet">◆</span>`;
     }
-    return `<i class="${DEVICON_MAP[iconKey]} colored" style="font-size:16px"></i>`;
+    return `<i class="devicon ${DEVICON_MAP[iconKey]} colored" style="font-size:16px"></i>`;
   }
 
   // ── Utility: build the coloured prompt HTML ──────────────────
@@ -134,11 +134,14 @@ const Commands = (() => {
   function skills() {
     const sections = Object.entries(USER_DATA.skills);
     const html = sections.map(([cat, items]) => {
-      const names = items.map(i => `<span class="out-accent3">• ${i.name}</span>`).join('  ');
+      const names = items.map(i => {
+        const icon = iconHtml(i.icon);
+        return `<span class="tech-item-inline">${icon} ${i.name}</span>`;
+      }).join('  ');
       return `
         <div class="tech-category">
           <div class="tech-cat-name">[${cat.replace('_', ' ').toUpperCase()}]</div>
-          <div style="margin-left:4px;line-height:2">${names}</div>
+          <div style="margin-left:4px;line-height:2.2">${names}</div>
         </div>
       `;
     }).join('');
@@ -250,8 +253,7 @@ const Commands = (() => {
   // ── ipconfig ─────────────────────────────────────────────────
   async function ipconfig() {
     try {
-      const res  = await fetch('https://api.ipify.org?format=json');
-      const data = await res.json();
+      const data = window.preloadedIpData || await (await fetch('https://api.ipify.org?format=json')).json();
       return { html: `
         <div class="out-success sec-title">NETWORK INFO</div>
         <div>Public IP : <span class="out-info">${data.ip}</span></div>

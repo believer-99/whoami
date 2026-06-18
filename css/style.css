@@ -36,10 +36,20 @@ html, body { height: 100%; overflow: hidden; }
   --font:           'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
   --font-size:      14px;
   --line-height:    1.65;
-  --radius:         10px;
+  --radius:         3px;
   --tr:             0.3s ease;
   --term-min-h:     420px;
   --term-max-h:     92vh;
+  
+  /* Vim Statusline Variables */
+  --status-mode-bg: #3fb950;
+  --status-mode-fg: #0d1117;
+  --status-sec-bg:  #21262d;
+  --status-sec-fg:  #c9d1d9;
+  --status-file-bg: #161b22;
+  --status-file-fg: #8b949e;
+  --status-pct-bg:  #d2a8ff;
+  --status-pct-fg:  #0d1117;
 }
 
 /* ── Light Theme ─────────────────────────────────────────────── */
@@ -67,6 +77,16 @@ body.theme-light {
   --input-cursor:   #15803d;
   --shadow:         0 8px 32px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.08);
   --glow:           none;
+  
+  /* Vim Statusline Variables */
+  --status-mode-bg: #15803d;
+  --status-mode-fg: #ffffff;
+  --status-sec-bg:  #dde1e7;
+  --status-sec-fg:  #1c1e21;
+  --status-file-bg: #ffffff;
+  --status-file-fg: #6b7280;
+  --status-pct-bg:  #7c3aed;
+  --status-pct-fg:  #ffffff;
 }
 
 /* ── Mario Theme ─────────────────────────────────────────────── */
@@ -94,6 +114,16 @@ body.theme-mario {
   --input-cursor:   #ffd700;
   --shadow:         0 0 40px rgba(255,215,0,.3), 0 8px 32px rgba(0,0,0,.8);
   --glow:           0 0 40px rgba(255,215,0,.25);
+  
+  /* Vim Statusline Variables */
+  --status-mode-bg: #ffd700;
+  --status-mode-fg: #000000;
+  --status-sec-bg:  #9a0000;
+  --status-sec-fg:  #ffffff;
+  --status-file-bg: #000000;
+  --status-file-fg: #aaaaaa;
+  --status-pct-bg:  #00dd00;
+  --status-pct-fg:  #000000;
 }
 
 /* ── Interstellar Theme ──────────────────────────────────────── */
@@ -121,6 +151,16 @@ body.theme-interstellar {
   --input-cursor:   #7ab4f5;
   --shadow:         0 0 60px rgba(122,180,245,.12), 0 8px 40px rgba(0,0,10,.9);
   --glow:           0 0 50px rgba(122,180,245,.1);
+  
+  /* Vim Statusline Variables */
+  --status-mode-bg: #7ab4f5;
+  --status-mode-fg: #04040f;
+  --status-sec-bg:  #080820;
+  --status-sec-fg:  #dce8ff;
+  --status-file-bg: #04040f;
+  --status-file-fg: #6a7faa;
+  --status-pct-bg:  #f0c040;
+  --status-pct-fg:  #04040f;
 }
 
 /* ── Body ────────────────────────────────────────────────────── */
@@ -147,7 +187,7 @@ body {
 #loading-screen {
   position: fixed;
   inset: 0;
-  background: #000;
+  background: #090d13;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -159,43 +199,108 @@ body {
   opacity: 0;
   pointer-events: none;
 }
-#mario-canvas {
-  display: block;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-  margin-bottom: 28px;
+#loading-container {
+  width: 480px;
+  max-width: 90%;
+  background: rgba(22, 27, 34, 0.85);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 30px;
+  box-shadow: var(--shadow), var(--glow);
+  backdrop-filter: blur(8px);
+  text-align: center;
 }
-#loading-info { text-align: center; }
-#loading-label {
-  color: #e63030;
-  font-size: 15px;
+.vim-loader-logo {
+  font-family: var(--font);
+  font-size: 48px;
   font-weight: 700;
-  letter-spacing: 3px;
+  color: var(--accent);
+  text-shadow: 0 0 15px rgba(63,185,80,0.4);
+  letter-spacing: 8px;
+  margin-bottom: 15px;
+}
+#loading-label {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
   text-transform: uppercase;
-  text-shadow: 0 0 12px rgba(230,48,48,.7);
-  margin-bottom: 14px;
+}
+#loading-progress-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
 }
 #loading-bar-wrap {
-  width: 320px;
-  height: 5px;
-  background: #1a1a1a;
+  flex: 1;
+  height: 6px;
+  background: #0d1117;
   border-radius: 3px;
   overflow: hidden;
-  margin: 0 auto 10px;
-  border: 1px solid #333;
+  border: 1px solid var(--border);
 }
 #loading-bar {
   width: 0%;
   height: 100%;
-  background: linear-gradient(90deg, #e63030, #ffd700);
+  background: var(--accent);
   border-radius: 3px;
-  box-shadow: 0 0 8px rgba(230,48,48,.6);
-  transition: width .04s linear;
+  box-shadow: 0 0 8px var(--accent);
+  transition: width 0.1s ease;
 }
-#loading-sub {
-  color: #555;
+#loading-percentage {
+  font-family: var(--font);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 700;
+  min-width: 40px;
+  text-align: right;
+}
+#loading-status {
+  color: var(--dim);
+  font-size: 12px;
+  margin-bottom: 15px;
+  text-align: left;
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#loading-console {
+  background: #0d1117;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  height: 110px;
+  overflow-y: auto;
+  padding: 8px 12px;
+  text-align: left;
+  font-family: var(--font);
   font-size: 11px;
-  letter-spacing: 1px;
+  color: #8b949e;
+  line-height: 1.5;
+}
+#loading-console::-webkit-scrollbar {
+  width: 4px;
+}
+#loading-console::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+.console-line {
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.console-line.success {
+  color: var(--accent);
+}
+.console-line.info {
+  color: var(--accent2);
+}
+.console-line.error {
+  color: var(--error);
 }
 
 /* ── Terminal Wrapper ────────────────────────────────────────── */
@@ -228,38 +333,126 @@ body {
     box-shadow var(--tr);
 }
 
-/* ── Title Bar ───────────────────────────────────────────────── */
+/* ── Title Bar (Vim Tabline) ─────────────────────────────────── */
 #titlebar {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
-  padding: 10px 16px;
+  padding: 0;
   background: var(--titlebar-bg);
   border-bottom: 1px solid var(--border);
+  height: 34px;
   flex-shrink: 0;
   transition: background var(--tr), border-color var(--tr);
 }
-#window-controls { display: flex; gap: 8px; }
-.wc-btn {
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  display: inline-block;
-  transition: filter .15s;
+#vim-tabs {
+  display: flex;
+  height: 100%;
 }
-.wc-btn:hover { filter: brightness(1.3); }
-.wc-close    { background: #ff5f57; }
-.wc-minimize { background: #febc2e; }
-.wc-maximize { background: #28c840; }
-#titlebar-text {
+.vim-tab {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
   font-size: 12px;
   color: var(--dim);
-  letter-spacing: .5px;
+  background: color-mix(in srgb, var(--titlebar-bg) 85%, #000 15%);
+  border-right: 1px solid var(--border);
+  cursor: pointer;
   user-select: none;
+  transition: background 0.15s, color 0.15s;
 }
-.wc-right-pad { width: 62px; }
+.vim-tab:hover {
+  background: color-mix(in srgb, var(--titlebar-bg) 95%, #fff 5%);
+  color: var(--text);
+}
+.vim-tab.active {
+  background: var(--term-bg);
+  color: var(--accent);
+  border-bottom: 1px solid transparent;
+  font-weight: 500;
+  box-shadow: inset 0 2px 0 var(--accent);
+}
+#titlebar-text {
+  display: flex;
+  align-items: center;
+  padding-right: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  text-shadow: 0 0 8px rgba(63,185,80,0.3);
+  letter-spacing: 1px;
+}
+
+/* ── Vim Statusline ──────────────────────────────────────────── */
+#vim-statusline {
+  display: flex;
+  justify-content: space-between;
+  background: var(--status-sec-bg);
+  color: var(--status-sec-fg);
+  font-size: 12px;
+  height: 24px;
+  line-height: 24px;
+  user-select: none;
+  font-family: var(--font);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  transition: background var(--tr), color var(--tr), border-color var(--tr);
+}
+.sl-left, .sl-right {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+.sl-section {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+  height: 100%;
+}
+.sl-mode {
+  display: inline-flex;
+  align-items: center;
+  background: var(--status-mode-bg);
+  color: var(--status-mode-fg);
+  font-weight: 800;
+  padding: 0 14px;
+  height: 100%;
+  transition: background 0.2s, color 0.2s;
+  text-transform: uppercase;
+}
+.sl-mode.insert-mode {
+  background: var(--accent2);
+  color: #ffffff;
+}
+.sl-user {
+  background: var(--status-sec-bg);
+  color: var(--status-sec-fg);
+  font-weight: 500;
+}
+.sl-file {
+  background: var(--status-file-bg);
+  color: var(--status-file-fg);
+  font-style: italic;
+}
+.sl-encoding, .sl-format {
+  color: var(--dim);
+  border-left: 1px solid color-mix(in srgb, var(--status-sec-bg) 80%, #fff 20%);
+}
+.sl-percentage {
+  background: var(--status-pct-bg);
+  color: var(--status-pct-fg);
+  font-weight: 500;
+}
+.sl-linecol {
+  background: var(--status-mode-bg);
+  color: var(--status-mode-fg);
+  font-weight: bold;
+  transition: background 0.2s, color 0.2s;
+}
+.sl-linecol.insert-mode {
+  background: var(--accent2);
+  color: #ffffff;
+}
 
 /* ── Terminal Body (scrollable output) ───────────────────────── */
 #terminal-body {
@@ -424,6 +617,17 @@ body {
   line-height: 1;
 }
 .tech-bullet { color: var(--accent3); font-size: 10px; }
+.tech-item-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 14px;
+  color: var(--accent3);
+}
+.tech-item-inline i {
+  font-size: 14px;
+  line-height: 1;
+}
 
 /* Education card */
 .edu-card { margin: 4px 0 8px; }
@@ -478,6 +682,7 @@ body.theme-mario #terminal-window {
   image-rendering: pixelated;
 }
 body.theme-mario #titlebar { border-bottom: 3px solid var(--border); }
+body.theme-mario #vim-statusline { border-top: 3px solid var(--border); }
 
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 600px) {

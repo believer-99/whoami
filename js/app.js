@@ -32,7 +32,63 @@ const Terminal = (() => {
     const p = promptSpan();
     if (p) p.innerHTML = buildPrompt();
     const t = titleText();
-    if (t) t.textContent = `${currentUser}@portfolio: ~`;
+    if (t) t.textContent = `VIM`;
+  }
+
+  // ── Vim Tab & Statusline Helpers ──────────────────────────────
+  const FILE_NAMES = {
+    about: 'about.txt',
+    projects: 'projects.md',
+    skills: 'skills.json',
+    contact: 'contact.py',
+    resume: 'resume.pdf',
+    spotify: 'spotify.vim'
+  };
+
+  function setActiveTab(tabName) {
+    document.querySelectorAll('.vim-tab').forEach(tab => {
+      const cmd = tab.getAttribute('data-cmd');
+      if (cmd === tabName) {
+        tab.classList.add('active');
+      } else {
+        tab.classList.remove('active');
+      }
+    });
+
+    // Update statusline file name dynamically even if the tab doesn't exist visually
+    const fileEl = document.getElementById('status-file');
+    if (fileEl) {
+      if (FILE_NAMES[tabName]) {
+        fileEl.textContent = FILE_NAMES[tabName];
+      } else {
+        fileEl.textContent = tabName;
+      }
+    }
+  }
+
+  function updateStatusLine() {
+    const input = cmdInput();
+    const linecolEl = document.getElementById('status-linecol');
+    if (linecolEl && input) {
+      const col = input.selectionStart + 1;
+      const row = cmdHistory.length + 1;
+      linecolEl.textContent = ` ${row}:${col}`;
+    }
+  }
+
+  function setStatusMode(mode) {
+    const modeEl = document.getElementById('status-mode');
+    const linecolEl = document.getElementById('status-linecol');
+    if (modeEl) {
+      modeEl.textContent = mode;
+      if (mode === 'INSERT') {
+        modeEl.classList.add('insert-mode');
+        if (linecolEl) linecolEl.classList.add('insert-mode');
+      } else {
+        modeEl.classList.remove('insert-mode');
+        if (linecolEl) linecolEl.classList.remove('insert-mode');
+      }
+    }
   }
 
   // ── Print helpers ─────────────────────────────────────────────
@@ -138,6 +194,7 @@ const Terminal = (() => {
       printCmdEcho(val);
       print(`<span class="out-dim">${matches.join('  ')}</span>`);
     }
+    updateStatusLine();
   }
 
   // ── History navigation (arrow keys) ──────────────────────────
@@ -148,17 +205,22 @@ const Terminal = (() => {
     historyIdx = Math.min(historyIdx + 1, cmdHistory.length - 1);
     input.value = cmdHistory[cmdHistory.length - 1 - historyIdx];
     // Move cursor to end
-    setTimeout(() => { input.selectionStart = input.selectionEnd = input.value.length; }, 0);
+    setTimeout(() => { 
+      input.selectionStart = input.selectionEnd = input.value.length; 
+      updateStatusLine();
+    }, 0);
   }
 
   function historyDown() {
     if (historyIdx <= 0) {
       historyIdx = -1;
       cmdInput().value = tempInput;
+      updateStatusLine();
       return;
     }
     historyIdx--;
     cmdInput().value = cmdHistory[cmdHistory.length - 1 - historyIdx];
+    updateStatusLine();
   }
 
   // ── Process a submitted command ───────────────────────────────
@@ -171,6 +233,8 @@ const Terminal = (() => {
     input.value = '';
     historyIdx  = -1;
     tempInput   = '';
+    
+    updateStatusLine();
 
     // Print the echoed command
     printCmdEcho(trimmed || '');
@@ -180,6 +244,22 @@ const Terminal = (() => {
     // Save to history (avoid consecutive duplicates)
     if (!cmdHistory.length || cmdHistory[cmdHistory.length - 1] !== trimmed) {
       cmdHistory.push(trimmed);
+    }
+
+    // Sync active tab
+    const parts = trimmed.split(/\s+/);
+    const cmdName = parts[0].toLowerCase();
+    
+    let tabTarget = null;
+    if (cmdName === 'about') tabTarget = 'about';
+    else if (cmdName === 'projects') tabTarget = 'projects';
+    else if (cmdName === 'skills' || cmdName === 'tech_stack') tabTarget = 'skills';
+    else if (cmdName === 'contact' || cmdName === 'social') tabTarget = 'contact';
+    else if (cmdName === 'resume') tabTarget = 'resume';
+    else if (cmdName === 'spotify') tabTarget = 'spotify';
+
+    if (tabTarget) {
+      setActiveTab(tabTarget);
     }
 
     // Run command
@@ -227,124 +307,147 @@ const Terminal = (() => {
     });
   }
 
-  // ── Mario Loading Screen ──────────────────────────────────────
+  // ── Vim Percentage Loading Screen with Asset Preload ──────────
   function runLoadingScreen() {
     return new Promise(resolve => {
-      const canvas = document.getElementById('mario-canvas');
-      const ctx    = canvas.getContext('2d');
       const bar    = document.getElementById('loading-bar');
-      const dotsEl = document.getElementById('loading-dots');
+      const pctEl  = document.getElementById('loading-percentage');
+      const statusEl = document.getElementById('loading-status');
+      const consoleEl = document.getElementById('loading-console');
 
-      // ── Mario pixel sprite (16×16 grid, each cell = 4px) ──
-      const SCALE = 3;
-      const CELL  = 4 * SCALE;
+      function writeConsoleLine(text, type = '') {
+        if (!consoleEl) return;
+        const line = document.createElement('div');
+        line.className = `console-line ${type}`;
+        line.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
+        consoleEl.appendChild(line);
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+      }
 
-      // Simplified Mario sprite rows (top to bottom)
-      // Colors: R=red, S=skin, B=brown, W=white, _=transparent
-      const MARIO = [
-        ' _RRRR_ ',
-        '_RRRRRRR',
-        '_SSSBB_ ',
-        'SBSBSBS ',
-        'SSSSSSS ',
-        '__RRR__ ',
-        '_RBRB__ ',
-        '_RBRB__ ',
-        '_RRRR__ ',
-        '___SS__ ',
-        '__SSSS_ ',
-        '__SS_SS ',
+      const assets = [
+        { type: 'style', url: 'https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap', name: 'Google Fonts CSS' },
+        { type: 'style', url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css', name: 'Devicons CSS' },
+        { type: 'font', url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/fonts/devicon.woff2', name: 'Devicon WOFF2 Font' },
+        { type: 'json', url: 'https://api.ipify.org?format=json', name: 'Public IP Info', isIpify: true },
+        { type: 'blob', url: 'resume/Ashutosh_Shukla_Resume.pdf', name: 'Resume PDF', optional: true },
       ];
-      const COL = { R:'#e63030', S:'#f5c5a3', B:'#7a3b0a', W:'#ffffff', _:'transparent' };
 
-      function drawMario(x, y) {
-        MARIO.forEach((row, ri) => {
-          [...row].forEach((ch, ci) => {
-            const color = COL[ch] || 'transparent';
-            if (color === 'transparent') return;
-            ctx.fillStyle = color;
-            ctx.fillRect(x + ci * CELL, y + ri * CELL, CELL - 1, CELL - 1);
-          });
-        });
-      }
+      let completedRequests = 0;
+      let targetProgress = 0;
+      let currentProgress = 0;
 
-      // Ground
-      function drawGround(y) {
-        ctx.fillStyle = '#8B6914';
-        ctx.fillRect(0, y, canvas.width, 6);
-        ctx.fillStyle = '#5c4010';
-        ctx.fillRect(0, y + 6, canvas.width, 2);
-      }
-
-      // Coin block
-      function drawBlock(x, y) {
-        ctx.fillStyle = '#d4a017';
-        ctx.fillRect(x, y, 24, 24);
-        ctx.fillStyle = '#f0c040';
-        ctx.fillRect(x + 2, y + 2, 20, 20);
-        ctx.fillStyle = '#8a6200';
-        ctx.font = `bold ${12}px monospace`;
-        ctx.fillText('?', x + 7, y + 17);
-      }
-
-      let marioX = -40;
-      let frame  = 0;
-      let progress = 0;
-      const DURATION = 3000; // ms
-      const start    = performance.now();
-      let dots = 0;
-
-      const groundY = canvas.height - 30;
-
-      function tick(now) {
-        const elapsed = now - start;
-        progress = Math.min(elapsed / DURATION, 1);
-
-        // Clear
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Draw elements
-        drawGround(groundY);
-        drawBlock(canvas.width * 0.5 - 12, groundY - 60);
-        drawBlock(canvas.width * 0.5 + 40, groundY - 60);
-
-        // Animate Mario running
-        marioX = -40 + (canvas.width + 80) * progress;
-        drawMario(marioX, groundY - MARIO.length * CELL);
-
-        // Loading bar
-        bar.style.width = (progress * 100) + '%';
-
-        // Dots
-        if (Math.floor(elapsed / 400) !== dots) {
-          dots = Math.floor(elapsed / 400) % 4;
-          dotsEl.textContent = '.'.repeat(dots);
+      // Animate progress smoothly
+      function animate() {
+        if (currentProgress < targetProgress) {
+          currentProgress += 1;
         }
+        if (bar) bar.style.width = currentProgress + '%';
+        if (pctEl) pctEl.textContent = currentProgress + '%';
 
-        if (progress < 1) {
-          requestAnimationFrame(tick);
-        } else {
-          // Fade out
-          const screen = document.getElementById('loading-screen');
-          screen.classList.add('hidden');
+        if (currentProgress >= 100) {
+          if (statusEl) statusEl.textContent = 'Vim portfolio ready!';
+          writeConsoleLine('System boot successful.', 'success');
           setTimeout(() => {
-            screen.style.display = 'none';
-            resolve();
-          }, 900);
+            const screen = document.getElementById('loading-screen');
+            if (screen) {
+              screen.classList.add('hidden');
+              setTimeout(() => {
+                screen.style.display = 'none';
+                resolve();
+              }, 800);
+            } else {
+              resolve();
+            }
+          }, 400);
+        } else {
+          requestAnimationFrame(animate);
         }
       }
 
-      requestAnimationFrame(tick);
+      requestAnimationFrame(animate);
+      
+      writeConsoleLine('Initializing system bootloader...', 'info');
+      writeConsoleLine('Preloading developer environment assets...', 'info');
+
+      if (assets.length === 0) {
+        targetProgress = 100;
+        return;
+      }
+
+      assets.forEach(async (asset) => {
+        try {
+          writeConsoleLine(`Fetching asset: ${asset.name}...`);
+          const res = await fetch(asset.url, { cache: 'force-cache' });
+          if (!res.ok) throw new Error(`HTTP status ${res.status}`);
+          
+          if (asset.isIpify) {
+            const data = await res.json();
+            window.preloadedIpData = data;
+          } else {
+            await res.blob();
+          }
+          writeConsoleLine(`✔ Loaded ${asset.name}`, 'success');
+        } catch (err) {
+          writeConsoleLine(`⚠ Skipping ${asset.name}: ${err.message}`, 'error');
+          if (asset.isIpify) {
+            window.preloadedIpData = { ip: '127.0.0.1' };
+          }
+        } finally {
+          completedRequests++;
+          if (statusEl) statusEl.textContent = `Loading ${asset.name}...`;
+          targetProgress = Math.round((completedRequests / assets.length) * 100);
+        }
+      });
     });
   }
 
   // ── Init ──────────────────────────────────────────────────────
   async function init() {
     // Wire up events
-    cmdInput().addEventListener('keydown', onKeydown);
+    const input = cmdInput();
+    input.addEventListener('keydown', onKeydown);
+    
+    // Statusline and cursor tracking
+    input.addEventListener('input', updateStatusLine);
+    input.addEventListener('keyup', updateStatusLine);
+    input.addEventListener('click', updateStatusLine);
+    input.addEventListener('focus', () => setStatusMode('INSERT'));
+    input.addEventListener('blur', () => setStatusMode('NORMAL'));
+    
     keepFocus();
 
-    // Run Mario loading screen, then show terminal
+    // Wire up Vim tabs
+    document.querySelectorAll('.vim-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const cmd = tab.getAttribute('data-cmd');
+        if (cmd && !busy) {
+          input.value = cmd;
+          processCommand();
+          input.focus();
+        }
+      });
+    });
+
+    // Wire up terminal body scrolling
+    const body = termBody();
+    if (body) {
+      body.addEventListener('scroll', () => {
+        const pctEl = document.getElementById('status-pct');
+        if (pctEl) {
+          const scrollHeight = body.scrollHeight - body.clientHeight;
+          if (scrollHeight <= 0) {
+            pctEl.textContent = 'All';
+          } else {
+            const pct = Math.round((body.scrollTop / scrollHeight) * 100);
+            if (pct === 0) pctEl.textContent = 'Top';
+            else if (pct === 100) pctEl.textContent = 'Bot';
+            else pctEl.textContent = pct + '%';
+          }
+        }
+      });
+    }
+
+    // Run percentage loading screen, then show terminal
     await runLoadingScreen();
 
     // Restore saved theme
@@ -353,7 +456,10 @@ const Terminal = (() => {
     // Show welcome message
     await showWelcome();
 
-    cmdInput().focus();
+    // Initial statusline update
+    updateStatusLine();
+    input.focus();
+    setStatusMode('INSERT');
   }
 
   // ── Start ─────────────────────────────────────────────────────

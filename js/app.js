@@ -345,7 +345,7 @@ const Terminal = (() => {
         if (pctEl) pctEl.textContent = currentProgress + '%';
 
         if (currentProgress >= 100) {
-          if (statusEl) statusEl.textContent = 'Vim portfolio ready!';
+          if (statusEl) statusEl.textContent = 'Portfolio ready!';
           writeConsoleLine('System boot successful.', 'success');
           setTimeout(() => {
             const screen = document.getElementById('loading-screen');

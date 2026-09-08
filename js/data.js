@@ -122,7 +122,7 @@ const USER_DATA = {
   },
 
   // ── Resume ────────────────────────────────────────────────────
-  resume: '/resume/Ashutosh_Shukla_Resume.pdf',
+  resume: 'resume/Ashutosh_Shukla_Resume.pdf',
 
   // ── Spotify Playlist (embed URL) ─────────────────────────────
   spotify: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M',

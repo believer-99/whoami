@@ -7,19 +7,19 @@
 const Terminal = (() => {
 
   // ── State ────────────────────────────────────────────────────
-  let cmdHistory  = [];     // submitted command history
-  let historyIdx  = -1;     // current arrow-key position
-  let tempInput   = '';     // saved input before cycling history
+  let cmdHistory = [];     // submitted command history
+  let historyIdx = -1;     // current arrow-key position
+  let tempInput = '';     // saved input before cycling history
   let currentUser = USER_DATA.username;
-  let busy        = false;  // lock input during typing animations
+  let busy = false;  // lock input during typing animations
 
   // ── DOM references ───────────────────────────────────────────
-  const output     = () => document.getElementById('output');
-  const cmdInput   = () => document.getElementById('cmd-input');
-  const inputRow   = () => document.getElementById('input-row');
+  const output = () => document.getElementById('output');
+  const cmdInput = () => document.getElementById('cmd-input');
+  const inputRow = () => document.getElementById('input-row');
   const promptSpan = () => document.getElementById('prompt-span');
-  const termBody   = () => document.getElementById('terminal-body');
-  const titleText  = () => document.getElementById('titlebar-text');
+  const termBody = () => document.getElementById('terminal-body');
+  const titleText = () => document.getElementById('titlebar-text');
 
   // ── Prompt HTML ──────────────────────────────────────────────
   function buildPrompt(user, path) {
@@ -126,7 +126,7 @@ const Terminal = (() => {
   }
 
   function escHtml(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   // ── Typing effect ─────────────────────────────────────────────
@@ -171,7 +171,7 @@ const Terminal = (() => {
       `<span class="out-dim">  Type </span><span class="out-info">help</span><span class="out-dim"> to see available commands.</span>`,
       `<span class="out-dim">  Type </span><span class="out-info">about</span><span class="out-dim"> to learn more about me.</span>`,
       `<span class="out-dim">  Type </span><span class="out-info">projects</span><span class="out-dim"> to explore my work.</span>`,
-      `<span class="out-dim">  Type </span><span class="out-info">tech_stack</span><span class="out-dim"> to see my skills with logos.</span>`,
+      `<span class="out-dim">  Type </span><span class="out-info">skills</span><span class="out-dim"> to see my technical skills.</span>`,
       ``,
       `<span class="out-dim">  Tip: </span><span class="out-accent3">Tab</span><span class="out-dim"> auto-completes · </span><span class="out-accent3">↑ ↓</span><span class="out-dim"> cycles history</span>`,
       ``,
@@ -183,11 +183,11 @@ const Terminal = (() => {
 
   // ── Tab auto-complete ─────────────────────────────────────────
   function autoComplete() {
-    const input  = cmdInput();
-    const val    = input.value.trim();
+    const input = cmdInput();
+    const val = input.value.trim();
     if (!val) return;
 
-    const all    = Commands.list();
+    const all = Commands.list();
     const matches = all.filter(c => c.startsWith(val.toLowerCase()));
 
     if (matches.length === 1) {
@@ -207,8 +207,8 @@ const Terminal = (() => {
     historyIdx = Math.min(historyIdx + 1, cmdHistory.length - 1);
     input.value = cmdHistory[cmdHistory.length - 1 - historyIdx];
     // Move cursor to end
-    setTimeout(() => { 
-      input.selectionStart = input.selectionEnd = input.value.length; 
+    setTimeout(() => {
+      input.selectionStart = input.selectionEnd = input.value.length;
       updateStatusLine();
     }, 0);
   }
@@ -229,13 +229,13 @@ const Terminal = (() => {
   async function processCommand() {
     if (busy) return;
     const input = cmdInput();
-    const raw   = input.value;
+    const raw = input.value;
     const trimmed = raw.trim();
 
     input.value = '';
-    historyIdx  = -1;
-    tempInput   = '';
-    
+    historyIdx = -1;
+    tempInput = '';
+
     updateStatusLine();
 
     // Print the echoed command
@@ -251,12 +251,12 @@ const Terminal = (() => {
     // Sync active tab
     const parts = trimmed.split(/\s+/);
     const cmdName = parts[0].toLowerCase();
-    
+
     let tabTarget = 'term';
-    if (cmdName === 'about') tabTarget = 'about';
+    if (cmdName === 'whoami') tabTarget = 'whoami';
     else if (cmdName === 'projects') tabTarget = 'projects';
-    else if (cmdName === 'skills' || cmdName === 'tech_stack') tabTarget = 'skills';
-    else if (cmdName === 'contact' || cmdName === 'social') tabTarget = 'contact';
+    else if (cmdName === 'skills') tabTarget = 'skills';
+    else if (cmdName === 'contact') tabTarget = 'contact';
     else if (cmdName === 'resume') tabTarget = 'resume';
     else if (cmdName === 'spotify') tabTarget = 'spotify';
 
@@ -288,10 +288,10 @@ const Terminal = (() => {
   // ── Keyboard handler ──────────────────────────────────────────
   function onKeydown(e) {
     switch (e.key) {
-      case 'Enter':   e.preventDefault(); processCommand();  break;
-      case 'Tab':     e.preventDefault(); autoComplete();    break;
-      case 'ArrowUp': e.preventDefault(); historyUp();       break;
-      case 'ArrowDown':e.preventDefault();historyDown();     break;
+      case 'Enter': e.preventDefault(); processCommand(); break;
+      case 'Tab': e.preventDefault(); autoComplete(); break;
+      case 'ArrowUp': e.preventDefault(); historyUp(); break;
+      case 'ArrowDown': e.preventDefault(); historyDown(); break;
       case 'l':
         if (e.ctrlKey) { e.preventDefault(); clear(); }
         break;
@@ -310,8 +310,8 @@ const Terminal = (() => {
   // ── Vim Percentage Loading Screen with Asset Preload ──────────
   function runLoadingScreen() {
     return new Promise(resolve => {
-      const bar    = document.getElementById('loading-bar');
-      const pctEl  = document.getElementById('loading-percentage');
+      const bar = document.getElementById('loading-bar');
+      const pctEl = document.getElementById('loading-percentage');
       const statusEl = document.getElementById('loading-status');
       const consoleEl = document.getElementById('loading-console');
 
@@ -365,7 +365,7 @@ const Terminal = (() => {
       }
 
       requestAnimationFrame(animate);
-      
+
       writeConsoleLine('Initializing system bootloader...', 'info');
       writeConsoleLine('Preloading developer environment assets...', 'info');
 
@@ -379,7 +379,7 @@ const Terminal = (() => {
           writeConsoleLine(`Fetching asset: ${asset.name}...`);
           const res = await fetch(asset.url, { cache: 'force-cache' });
           if (!res.ok) throw new Error(`HTTP status ${res.status}`);
-          
+
           if (asset.isIpify) {
             const data = await res.json();
             window.preloadedIpData = data;
@@ -406,14 +406,14 @@ const Terminal = (() => {
     // Wire up events
     const input = cmdInput();
     input.addEventListener('keydown', onKeydown);
-    
+
     // Statusline and cursor tracking
     input.addEventListener('input', updateStatusLine);
     input.addEventListener('keyup', updateStatusLine);
     input.addEventListener('click', updateStatusLine);
     input.addEventListener('focus', () => setStatusMode('INSERT'));
     input.addEventListener('blur', () => setStatusMode('NORMAL'));
-    
+
     keepFocus();
 
     // Wire up Vim tabs

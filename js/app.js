@@ -169,7 +169,7 @@ const Terminal = (() => {
       `<span class="out-success">╚══════════════════════════════════════════════════╝</span>`,
       ``,
       `<span class="out-dim">  Type </span><span class="out-info">help</span><span class="out-dim"> to see available commands.</span>`,
-      `<span class="out-dim">  Type </span><span class="out-info">about</span><span class="out-dim"> to learn more about me.</span>`,
+      `<span class="out-dim">  Type </span><span class="out-info">whoami</span><span class="out-dim"> to learn more about me.</span>`,
       `<span class="out-dim">  Type </span><span class="out-info">projects</span><span class="out-dim"> to explore my work.</span>`,
       `<span class="out-dim">  Type </span><span class="out-info">skills</span><span class="out-dim"> to see my technical skills.</span>`,
       ``,

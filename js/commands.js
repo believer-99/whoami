@@ -64,7 +64,7 @@ const Commands = (() => {
       ['─────────', '───────────────────────────'],
       ['theme <name>', 'Switch theme (default | light | mario | interstellar)'],
       ['spotify', 'Embedded Spotify player (Only Preview)'],
-      ['traceroute', ' A Simulated network trace'],
+      ['traceroute', 'A Simulated network trace'],
       ['useradd <n>', 'Change your display name'],
       ['sudo <cmd>', 'Try to escalate privileges 👀'],
       ['echo <text>', 'Print text to terminal'],
